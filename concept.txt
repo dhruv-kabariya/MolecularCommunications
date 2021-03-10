@@ -1,0 +1,11 @@
+NTXinformation particles into the environment
+
+reciver on-off key modiulation so, si = 1 ,particle recive
+
+lamda = 100 
+Receiver radius r = 45 nm
+Distance d = 500 nm
+Diffusion Coefficient D = 4.265 * 10^-10 m
+Discrete time lenght /U+0394 T= 9 us
+Slot lenght T = 30 t
+channel Lenght L = 5
