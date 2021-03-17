@@ -42,7 +42,7 @@ def Cj(Ntx,j,T):
 
 def p_BER(i,tau,Ntx,T):
 
-    y  = [Cj(Ntx,j,T)*sij[i-j] for j in range(1,L)]
+    y  = [Cj(Ntx,j,T)*sij[i-j] for j in range(1,L+1)]
     x = lambda_0*T + sum(y)
     x1 = x + Cj(Ntx,0,T)
 
