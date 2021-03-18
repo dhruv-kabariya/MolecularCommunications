@@ -2,6 +2,7 @@ import math
 from typing import cast
 import scipy.special as sp
 import random
+import numpy as np
 import matplotlib.pyplot as plt
 
 lambda_0 = 100  # ( lambda 0 )
@@ -15,11 +16,11 @@ L = 5  # Channel length
 Optimal_tau = 10**5
 
 SNR = 25
-sij = [random.randint(0, 1) for _ in range(6)]
+sij = np.array([random.randint(0, 1) for _ in range(6)])
 
 
-tau = [i for i in range(0, 61)]
-ri = [i for i in range(0, 61)]
+tau = np.array([i for i in range(0, 141)])
+ri = np.array([i for i in range(0, 1)])
 
 
 def probablity(i):

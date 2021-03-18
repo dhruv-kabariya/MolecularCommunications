@@ -6,7 +6,7 @@ import random
 import matplotlib.pyplot as plt
 
 plt.style.use('fivethirtyeight')
-plt.grid(b=True, linestyle='-')
+plt.grid(b=True)
 
 lambda_0 = 100  # ( lambda 0 )
 r = 45 * 10**(-9)  # Receiver radius r
@@ -72,12 +72,15 @@ def BER(tau, cj, t):
 def plot_graph():
     ber = [BER(t, cj, T) for t in tau]
     ber2 = [BER(t, cj1, T2) for t in tau]
-    plt.plot(tau, ber)
-    plt.plot(tau, ber2)
+    # fig, ax = plt.subplots()
+    # ax.yaxis.set_ticks(np.arange(0, 1, 10**-2))
+    print(ber2)
+    plt.plot(tau, ber, '.-', label='Solt lenght 30', linewidth=0.5)
+    plt.plot(tau, ber2, '.-', label='Solt lenght 50', linewidth=0.5)
     plt.xlabel('Thresold Value')
     plt.ylabel('BER')
     plt.title("FIG-3")
-    plt.legend(['Solt lenght 30', 'Solt lenght 50'])
+    plt.legend()
     plt.show()
 
 
