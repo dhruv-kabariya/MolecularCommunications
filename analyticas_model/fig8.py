@@ -16,11 +16,11 @@ L = 5  # Channel length
 Optimal_tau = 10**5
 
 SNR = 25
-sij = np.array([random.randint(0, 1) for _ in range(11)])
+sij = np.array([random.randint(0, 1) for _ in range(31)])
 
 
-tau = np.array([i for i in range(0, 141)])
-ri = np.array([i for i in range(0, 141)])
+tau = np.arange(20, 141)
+ri = np.arange(0, 141)
 
 
 def probablity(i):
@@ -33,9 +33,11 @@ def probablity(i):
         return (r/d)*(sp.erfc(x1))
 
 
-P0 = probablity(1)
+pj = np.array([probablity(i) for i in range(1, 8)])
 
-Ntx = (2*lambda_0*T*(10**(SNR/10)))/P0
+c0 = 2*lambda_0*T*(10**(SNR/10))
+
+Ntx = c0/pj[0]
 
 
 def Cj(Ntx, j):
@@ -45,29 +47,30 @@ def Cj(Ntx, j):
 # thresold when P(ri|si=0) = P(ri|si=1)
 # def get_tau(Ntx):
 
-c0 = Cj(Ntx, 0)
+cj = np.array([Cj(Ntx, j) for j in range(1, 6)])
+
 theory_thresold = c0 / math.log(
-    1+(c0/(sum([Cj(Ntx, i)/2 for i in range(1, L+1)]) + lambda_0*T)))
+    1+(c0/((cj.sum()/2) + lambda_0*T)))
 
 
-def p_BER(i, tau, Ntx):
+def p_BER(i, tau):
 
-    y = [Cj(Ntx, j)*sij[i-j] for j in range(1, L+1)]
-    x = lambda_0*T + sum(y)
-    x1 = x + Cj(Ntx, 0)
+    y = np.flipud(cj)*sij[i-L-1:i-1]
+    x = lambda_0*T + y.sum()
+    x1 = x + c0
 
-    ans = (1/2)*(sp.gammaincc(x, math.ceil(tau)) +
+    ans = (0.5)*(sp.gammaincc(x, math.ceil(tau)) +
                  1 - sp.gammaincc(x1, math.ceil(tau)))
 
     return ans
 
 
-def BER(Ntx):
+def BER():
 
     min_ber = 10**5
     for t in tau:
 
-        ans = (1/(2**L))*(sum([p_BER(i, t, Ntx)
+        ans = (1/(2**L))*(sum([p_BER(i, t)
                                for i in range(6, len(sij))]))
         if(min_ber >= ans):
             min_ber = ans
@@ -89,16 +92,22 @@ def p_ri_si(si, ri):
 
 
 def plot_graph():
-    b2 = (1/(2**L))*(sum([p_BER(i, theory_thresold, Ntx)
-                          for i in range(0, len(sij))]))
-    b1, Optimal_tau = BER(Ntx)
+    b2 = (1/(2**L))*(sum([p_BER(i, theory_thresold)
+                          for i in range(6, len(sij))]))
+    b1, Optimal_tau = BER()
     s0 = [p_ri_si(0, i) for i in ri]
     s1 = [p_ri_si(1, i) for i in ri]
 
-    plt.plot(ri, s0, '.-')
-    plt.plot(ri, s1, '.-', linewidth=0.4)
-    plt.plot(Optimal_tau, b1, 'o')
-    plt.plot(theory_thresold, b2, 'o')
+    plt.xlabel('Recivied Particle')
+    plt.ylabel("BER")
+
+    plt.plot(ri, s0, '.-', linewidth=0.4, label="si=0")
+    plt.plot(ri, s1, '.-', linewidth=0.4, label="si=1")
+    plt.plot(Optimal_tau, b1, 'o-', linewidth=0.4, label="theory thresold")
+    plt.plot(theory_thresold, b2, 'o-',
+             linewidth=0.4, label="optimal thresold")
+    plt.legend(loc=1, fontsize='x-small')
+
     plt.show()
 
 
