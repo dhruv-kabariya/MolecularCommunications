@@ -16,11 +16,11 @@ L = 5  # Channel length
 Optimal_tau = 10**5
 
 SNR = 25
-sij = np.array([random.randint(0, 1) for _ in range(6)])
+sij = np.array([random.randint(0, 1) for _ in range(11)])
 
 
 tau = np.array([i for i in range(0, 141)])
-ri = np.array([i for i in range(0, 1)])
+ri = np.array([i for i in range(0, 141)])
 
 
 def probablity(i):
@@ -68,7 +68,7 @@ def BER(Ntx):
     for t in tau:
 
         ans = (1/(2**L))*(sum([p_BER(i, t, Ntx)
-                               for i in range(0, len(sij))]))
+                               for i in range(6, len(sij))]))
         if(min_ber >= ans):
             min_ber = ans
             Optimal_tau = t
@@ -95,10 +95,10 @@ def plot_graph():
     s0 = [p_ri_si(0, i) for i in ri]
     s1 = [p_ri_si(1, i) for i in ri]
 
-    plt.plot(ri, s0)
-    plt.plot(ri, s1)
-    plt.plot(Optimal_tau, b1, 'bo')
-    plt.plot(theory_thresold, b2, 'r+')
+    plt.plot(ri, s0, '.-')
+    plt.plot(ri, s1, '.-', linewidth=0.4)
+    plt.plot(Optimal_tau, b1, 'o')
+    plt.plot(theory_thresold, b2, 'o')
     plt.show()
 
 
