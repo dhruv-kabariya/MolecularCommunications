@@ -73,7 +73,7 @@ def plot_graph():
     ber = [BER(t, cj, T) for t in tau]
     ber2 = [BER(t, cj1, T2) for t in tau]
     # fig, ax = plt.subplots()
-    # ax.yaxis.set_ticks(np.arange(0, 1, 10**-2))
+    plt.yticks(ber2)
 
     print(ber2)
     plt.plot(tau, ber, '.-', label='Solt lenght 30', linewidth=0.5)
