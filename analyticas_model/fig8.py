@@ -97,7 +97,7 @@ def plot_graph():
     b1, Optimal_tau = BER()
     s0 = [p_ri_si(0, i) for i in ri]
     s1 = [p_ri_si(1, i) for i in ri]
-
+    # plt.yscale('log')
     plt.xlabel('Recivied Particle')
     plt.ylabel("BER")
 

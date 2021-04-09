@@ -2,6 +2,7 @@ import math
 import re
 from typing import cast
 import scipy.special as sp
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.special.orthogonal import legendre
@@ -18,7 +19,7 @@ delta_t = 9 * 10**(-6)  # Discrete Time Length
 T = 30*delta_t  # Slot Length
 L = 5  # Channel length
 
-SNR = np.arange(-5, 56, 1)
+SNR = np.arange(0, 61, 1)
 tau = np.arange(0, 21, 0.5)
 sij = np.random.randint(2, size=60)
 
@@ -62,12 +63,12 @@ cj = np.array(
 )
 
 
-# def get_tau(co, cj):
+def get_tau(co, cj):
 
-#     ans = co / \
-#         math.log(
-#             1+(co/((cj.sum()/2) + lambda_0*T)))
-#     return ans
+    ans = co / \
+        math.log(
+            1+(co/((cj.sum()/2) + lambda_0*T)))
+    return ans
 
 
 def new_tau(c0_n, avg1):
@@ -102,16 +103,16 @@ def new_tau2(c0_n, avg1, final_t):
     return ans1
 
 
-# def p_BER(i, tau, co, cj):
+def p_BER(i, tau, co, cj):
 
-#     y = np.flipud(cj)*sij[i-L-1:i-1]
-#     x = lambda_0*T + y.sum()
-#     x1 = x + co
+    y = np.flipud(cj)*sij[i-L-1:i-1]
+    x = lambda_0*T + y.sum()
+    x1 = x + co
 
-#     ans = 0.5*(sp.gammaincc(x, math.ceil(tau)) +
-#                1 - sp.gammaincc(x1, math.ceil(tau)))
+    ans = 0.5*(sp.gammaincc(x, math.ceil(tau)) +
+               1 - sp.gammaincc(x1, math.ceil(tau)))
 
-#     return ans
+    return ans
 
 
 def Q_func(lam, n):
@@ -124,24 +125,24 @@ def Q_func(lam, n):
     return ans
 
 
-# def BER(cj, co):
+def BER(cj, co):
 
-#     ans = [(1/(2**L))*(sum([p_BER(i, t, co, cj)
-#                             for i in range(6, len(sij)-5)])) for t in tau]
+    ans = [(1/(2**L))*(sum([p_BER(i, t, co, cj)
+                            for i in range(6, len(sij)-5)])) for t in tau]
 
-#     return min(ans)
-
-
-# def BER2(cj, co):
-#     ans = (1/(2**L))*(sum([p_BER(i,  get_tau(co, cj), co, cj)
-#                            for i in range(6, len(sij)-6)]))
-
-#     return ans
+    return min(ans)
 
 
-for i in range(1, 5+1):
-    sum0 = sum0 + new_cj(Ntx[i], i)
-    sum1 = sum1 + sij[i]*new_cj(Ntx[i], i)
+def BER2(cj, co):
+    ans = (1/(2**L))*(sum([p_BER(i,  get_tau(co, cj), co, cj)
+                           for i in range(6, len(sij)-6)]))
+
+    return ans
+
+
+# for i in range(1, 5+1):
+#     sum0 = sum0 + new_cj(Ntx[i], i)
+#     sum1 = sum1 + sij[i]*new_cj(Ntx[i], i)
 
 avg = sum0 + lambda_0*T
 avg1 = avg+20
@@ -176,20 +177,23 @@ def new_BER():
 
 def plot_graph(cj):
 
-    new_BER()
-
+    # new_BER()
+    # plt.yscale('log')
+    # plt.yticks(np.arange(1, 0, 0.01))
     plt.xlabel("SNR (db)")
     plt.ylabel("BER")
     plt.title("BER of actual vs theory reciver at T=30 \u0394")
 
-    # cj = np.transpose(cj)
-    # b1 = [BER(cj[i], c0[i]) for i in range(len(c0))]
-    # b2 = [BER2(cj[i], c0[i]) for i in range(len(c0))]
+    cj = np.transpose(cj)
+    b1 = [BER(cj[i], c0[i]) for i in range(len(SNR))]
+    b2 = [BER2(cj[i], c0[i]) for i in range(len(SNR))]
     # print(b1)
-    plt.plot(SNR, pe0, '.-', label="optimal thresold value", linewidth=0.5)
-    plt.plot(SNR, pe1, '.-', label="sub optimal thresold value", linewidth=0.5)
+    plt.plot(SNR, b1, '.-',
+             label="optimal thresold value", linewidth=0.5)
+    plt.plot(SNR, b2, '.-',
+             label="sub optimal thresold value", linewidth=0.5)
 
-    plt.legend(loc=3, fontsize='x-small')
+    plt.legend(loc=1, fontsize='x-small')
     plt.show()
 
 

@@ -73,9 +73,10 @@ def plot_graph():
     ber = [BER(t, cj, T) for t in tau]
     ber2 = [BER(t, cj1, T2) for t in tau]
     # fig, ax = plt.subplots()
-    plt.yticks(ber2)
+    plt.yscale('log')
+    plt.yticks([1, 0.1, 0.01, 0.001, 0])
 
-    print(ber2)
+    # print(ber2)
     plt.plot(tau, ber, '.-', label='Solt lenght 30', linewidth=0.5)
     plt.plot(tau, ber2, '.-', label='Solt lenght 50', linewidth=0.5)
     plt.xlabel('Thresold Value')
