@@ -1,7 +1,8 @@
 import numpy as np
 import scipy.special as sp
 # from scipy.stats import poisson
-from numpy.random import poisson as ran
+from numpy.random import poisson
+import pandas as pd
 
 lambda_0 = 100  # ( lambda 0 )
 r = 45 * 10**(-9)  # Receiver radius r
@@ -11,7 +12,7 @@ delta_t = 9 * 10**(-6)  # Discrete Time Length
 T = 30*delta_t  # Slot Length
 L = 100  # Channel length
 
-SNR = np.arange(-5, 50, 1)
+SNR = np.arange(0, 55, 1)
 sj = np.random.randint(2, size=L)
 
 
@@ -25,7 +26,7 @@ def probablity(i):
         return (r/d)*(sp.erfc(x1))
 
 
-pj = np.array([probablity(i) for i in range(1, len(L)+1)])
+pj = np.array([probablity(i) for i in range(1, L+1)])
 
 c0 = 2*lambda_0*T*(10**(SNR/10))
 
@@ -36,21 +37,41 @@ def Cj(ntx):
     return ntx*pj
 
 
-cj = np.array(
-    [[Cj(ntx, j) for ntx in Ntx] for j in range(1, len(sj)+1)]
-)
-
-cj = np.transpose(cj)
+ri = np.zeros((55, 100))
 
 
 def writeData():
 
-    for i in len(SNR):
+    for i in range(len(SNR)):
 
         t = sj*Cj(Ntx[i])
 
         summation1 = t.sum()
 
-        Co(ii) = snr(ii)*2*lambda*T
-        average1 = (lambda*T + summation1)
-        average2 = average1 + data1.*Co(ii)
+        co = SNR[i]*2*lambda_0*T
+        average1 = (lambda_0*T + summation1)
+        average2 = average1 + sj*co
+        for j in range(len(average2)):
+
+            global ri
+            ri[i][j] = poisson(average2[j])
+        # ri[i] = poisson()
+
+    # writing
+
+    ri = np.reshape(ri, -1)
+    y = sj*np.ones((55, 100))
+    y = np.reshape(y, -1)
+    A = np.stack((ri, y), axis=1)
+
+    data = pd.DataFrame(
+        {
+
+            "X": ri,
+            "Y": y
+        }
+    )
+    data.to_csv("x_y.csv")
+
+
+writeData()

@@ -20,7 +20,7 @@ T = 30*delta_t  # Slot Length
 L = 5  # Channel length
 
 SNR = np.arange(0, 61, 1)
-tau = np.arange(0, 21, 0.5)
+tau = np.arange(50, 1000, 0.5)
 sij = np.random.randint(2, size=60)
 
 

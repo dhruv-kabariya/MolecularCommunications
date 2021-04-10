@@ -1,6 +1,7 @@
 import math
 from typing import cast
 import scipy.special as sp
+from scipy.stats import poisson
 import random
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,14 +14,10 @@ delta_t = 9 * 10**(-6)  # Discrete Time Length
 T = 30*delta_t  # Slot Length
 L = 5  # Channel length
 
-Optimal_tau = 10**5
-
+ri = np.arange(0, 140, 1)
+# print(ri)
 SNR = 25
-sij = np.array([random.randint(0, 1) for _ in range(31)])
-
-
-tau = np.arange(20, 141)
-ri = np.arange(0, 141)
+sij = np.array([random.randint(0, 1) for _ in range(140)])
 
 
 def probablity(i):
@@ -44,69 +41,44 @@ def Cj(Ntx, j):
     return Ntx*probablity(j+1)
 
 
+cj = np.array(
+    [[Cj(Ntx, j) for j in range(1, 6)] for _ in range(140)]
+)
 # thresold when P(ri|si=0) = P(ri|si=1)
 # def get_tau(Ntx):
 
-cj = np.array([Cj(Ntx, j) for j in range(1, 6)])
-
-theory_thresold = c0 / math.log(
-    1+(c0/((cj.sum()/2) + lambda_0*T)))
+# cj = np.array([Cj(Ntx,j) for j in range()])
 
 
-def p_BER(i, tau):
+def p_BER(i, si):
 
-    y = np.flipud(cj)*sij[i-L-1:i-1]
-    x = lambda_0*T + y.sum()
-    x1 = x + c0
+    lam = (c0*si) + (cj[i].sum()/2) + (lambda_0*T)
 
-    ans = (0.5)*(sp.gammaincc(x, math.ceil(tau)) +
-                 1 - sp.gammaincc(x1, math.ceil(tau)))
+    prob = (math.exp(-lam)*(lam**i))/math.factorial(i)
 
-    return ans
+    return prob
 
 
-def BER():
-
-    min_ber = 10**5
-    for t in tau:
-
-        ans = (1/(2**L))*(sum([p_BER(i, t)
-                               for i in range(6, len(sij))]))
-        if(min_ber >= ans):
-            min_ber = ans
-            Optimal_tau = t
-    # print(min_ber)
-    # print(Optimal_tau)
-    return min_ber, Optimal_tau
-
-
-# min of BER form all tau
-
-# distribution
-
-def p_ri_si(si, ri):
-
-    lambda_p = lambda_0*T + c0*si + \
-        (sum([Cj(Ntx, j) for j in range(1, L+1)])/2)
-    return (((math.e)**(-lambda_p)) * (lambda_p**ri))/math.factorial(ri)
+sub_tau = c0 / \
+    math.log(
+        1+(c0/((cj[1:5].sum()/2) + lambda_0*T)))
 
 
 def plot_graph():
-    b2 = (1/(2**L))*(sum([p_BER(i, theory_thresold)
-                          for i in range(6, len(sij))]))
-    b1, Optimal_tau = BER()
-    s0 = [p_ri_si(0, i) for i in ri]
-    s1 = [p_ri_si(1, i) for i in ri]
+    s0 = [p_BER(i, 0) for i in ri]
+    s1 = [p_BER(i, 1) for i in ri]
+
     # plt.yscale('log')
+
     plt.xlabel('Recivied Particle')
-    plt.ylabel("BER")
+    plt.ylabel("Probability")
 
     plt.plot(ri, s0, '.-', linewidth=0.4, label="si=0")
     plt.plot(ri, s1, '.-', linewidth=0.4, label="si=1")
-    plt.plot(Optimal_tau, b1, 'o-', linewidth=0.4, label="theory thresold")
-    plt.plot(theory_thresold, b2, 'o-',
-             linewidth=0.4, label="optimal thresold")
-    plt.legend(loc=1, fontsize='x-small')
+    plt.plot(sub_tau, 0.9, 'o-', linewidth=0.4, label="theory thresold")
+    # plt.plot(theory_thresold, b2, 'o-',
+    #          linewidth=0.4, label="optimal thresold")
+    # plt.legend(loc=1, fontsize='x-small')
 
     plt.show()
 
