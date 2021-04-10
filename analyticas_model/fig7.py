@@ -20,7 +20,7 @@ T = 30*delta_t  # Slot Length
 L = 5  # Channel length
 
 SNR = np.arange(0, 61, 1)
-tau = np.arange(50, 1000, 0.5)
+tau = np.arange(50, 500, 1)
 sij = np.random.randint(2, size=60)
 
 
@@ -52,12 +52,6 @@ def Cj(Ntx, j):
     return Ntx*pj[j+1]
 
 
-def new_cj(Ntx, j):
-
-    sum_cj = sum_cj + Ntx*pj[j]
-    return sum_cj
-
-
 cj = np.array(
     [[Cj(ntx, j) for ntx in Ntx] for j in range(1, 6)]
 )
@@ -69,38 +63,6 @@ def get_tau(co, cj):
         math.log(
             1+(co/((cj.sum()/2) + lambda_0*T)))
     return ans
-
-
-def new_tau(c0_n, avg1):
-
-    t3 = c0_n/avg1
-    t2 = math.log(1+t3)
-    t1 = c0_n/t2
-
-    ans1 = 0
-    lg0 = avg1
-    lg1 = avg1+c0_n
-
-    for i in range(0, t1, 1):
-        d1 = lg0**(i) * (math.e ** (-lg0))
-        d2 = lg1**(i) * (math.e ** (-lg1))
-        ans1 = ans1 + (d1 - d2)/math.factorial(i)
-
-    return ans1
-
-
-def new_tau2(c0_n, avg1, final_t):
-
-    ans2 = 0
-    lg0 = avg1
-    lg1 = avg1+c0_n
-
-    for i in range(0, final_t, 1):
-        d1 = lg0**(i) * (math.e ** (-lg0))
-        d2 = lg1**(i) * (math.e ** (-lg1))
-        ans1 = ans1 + (d1 - d2)/math.factorial(i)
-
-    return ans1
 
 
 def p_BER(i, tau, co, cj):
@@ -138,41 +100,6 @@ def BER2(cj, co):
                            for i in range(6, len(sij)-6)]))
 
     return ans
-
-
-# for i in range(1, 5+1):
-#     sum0 = sum0 + new_cj(Ntx[i], i)
-#     sum1 = sum1 + sij[i]*new_cj(Ntx[i], i)
-
-avg = sum0 + lambda_0*T
-avg1 = avg+20
-final_term = 100000
-
-pe0 = []
-pe1 = []
-
-
-def new_BER():
-
-    for i in range(1, len(SNR)):
-        t = new_tau(c0[i], avg)
-        pe0.append(0.5 - 0.5*(t))
-
-        for j in range(1, len(tau)):
-
-            lam1 = lambda_0*T + sum1
-            lam2 = lam1 + c0[i]
-            first = Q_func(lam1, tau[j])
-            last = Q_func(lam2, tau[j])
-
-            final = 0.5*(first+last)
-
-            if(final < final_term):
-                final_term = final
-                final_tao = sij[j]
-
-        b = new_tau2(c0[i], avg1, final_tao)
-        pe1.append(0.5 - 0.5*(b))
 
 
 def plot_graph(cj):
